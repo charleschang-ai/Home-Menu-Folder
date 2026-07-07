@@ -1,0 +1,275 @@
+.o_home_menu {
+
+    // Anchor for the absolutely positioned action buttons.
+    position: relative;
+
+    // Layout maintenance buttons (debug mode only), top-left corner.
+    .o_hm_actions {
+        position: absolute;
+        top: 14px;
+        left: 22px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+
+        .btn {
+            font-size: 0.85rem;
+            color: #fff;
+            border: 0;
+            background-size: 220% 220%;
+            transition: box-shadow 0.15s ease, transform 0.15s ease;
+            animation: o_gradient_flow 6s linear infinite;
+
+            &:hover {
+                color: #fff;
+                transform: translateY(-1px);
+            }
+        }
+    }
+
+    // Same palette as the folder border, so the two features read as one.
+    .o_auto_organize {
+        background: linear-gradient(135deg, #8b5cf6, #06b6d4, #f472b6);
+        box-shadow: 0 2px 10px rgba(139, 92, 246, 0.35);
+
+        &:hover {
+            box-shadow:
+                0 4px 14px rgba(139, 92, 246, 0.5),
+                0 0 20px rgba(6, 182, 212, 0.3);
+        }
+    }
+
+    // Warm gradient: dissolving folders is the "undo my tidying" action.
+    .o_unpack_all {
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+        box-shadow: 0 2px 10px rgba(239, 68, 68, 0.35);
+
+        &:hover {
+            box-shadow:
+                0 4px 14px rgba(239, 68, 68, 0.5),
+                0 0 20px rgba(245, 158, 11, 0.3);
+        }
+    }
+
+    // Highlight the tile that a dragged app is about to be merged into.
+    .o_folder_merge_target {
+        outline: 2px dashed var(--primary, #714B67);
+        outline-offset: 3px;
+        background-color: rgba(0, 0, 0, 0.06);
+        transition: outline-color 0.1s ease;
+    }
+
+    // Folder tile: a 2x2 mini-grid preview of the first apps it contains.
+    // Sized exactly like a native app icon (70px) so the grid stays uniform.
+    .o_folder {
+        cursor: pointer;
+
+        .o_folder_preview {
+            display: grid;
+            width: $o-home-menu-app-icon-max-width;
+            aspect-ratio: 1 / 1;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 5px;
+            padding: 8px;
+            overflow: hidden;
+
+            // Frosted glass + flowing gradient border.
+            border: 2px solid transparent;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.6)) padding-box,
+                linear-gradient(135deg, #8b5cf6, #06b6d4, #f472b6, #8b5cf6) border-box;
+            background-size: 100% 100%, 300% 300%;
+            animation: o_folder_border_flow 6s linear infinite;
+            backdrop-filter: blur(10px);
+
+            // Reuse the native icon hover/lift behaviour (.o_folder is .o_app,
+            // so the --AppSwitcherIcon-* custom props are already set on it).
+            box-shadow: var(--AppSwitcherIcon-box-shadow);
+            transform: var(--AppSwitcherIcon-transform);
+            transition: var(--AppSwitcherIcon-transition);
+            transform-origin: center bottom;
+
+            .o_folder_preview_icon {
+                min-width: 0;
+                min-height: 0;
+                overflow: hidden;
+
+                .o_app_icon {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                    padding: 0 !important;
+                    border-radius: 5px !important;
+                    box-shadow: none;
+
+                    i {
+                        font-size: 0.7rem;
+                    }
+                }
+            }
+        }
+
+        &:hover .o_folder_preview {
+            box-shadow:
+                0 0 12px rgba(139, 92, 246, 0.45),
+                0 0 24px rgba(6, 182, 212, 0.25),
+                0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        // "+N" cell when the folder holds more than 4 apps.
+        .o_folder_more {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 0.07);
+        }
+
+        // App count badge on the tile corner.
+        .o_folder_badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 9px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 18px;
+            text-align: center;
+            color: #fff;
+            background: linear-gradient(135deg, #ff9500, #ff3b30);
+            box-shadow: 0 1px 4px rgba(255, 59, 48, 0.45);
+            pointer-events: none;
+        }
+    }
+
+    // Keep dragged tiles visible above the folder overlay.
+    .o_draggable.o_dragged,
+    .o_folder_draggable.o_dragged {
+        z-index: 2000 !important;
+    }
+
+    // Enlarged folder panel overlay.
+    .o_folder_overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(4px);
+        animation: o_folder_fade 0.15s ease-out;
+
+        &.o_closing {
+            animation: o_folder_fade_out 0.18s ease-in forwards;
+
+            .o_folder_panel {
+                animation: o_folder_zoom_out 0.18s ease-in forwards;
+            }
+        }
+    }
+
+    .o_folder_panel {
+        // transform-origin is set inline (the clicked tile's position), so the
+        // panel zooms out of its folder like iOS.
+        animation: o_folder_zoom_in 0.22s cubic-bezier(0.34, 1.3, 0.64, 1);
+        // NB: no min(px, %) here — the SCSS compiler evaluates min() at build
+        // time and chokes on mixed units.
+        width: 92%;
+        max-width: 680px;
+        max-height: 82%;
+        overflow: auto;
+        background-color: var(--o-home-menu-panel-bg, #ffffff);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    }
+
+    // While an app is dragged outside the panel: "release to remove" hint.
+    .o_folder_panel.o_drop_out {
+        outline: 2px dashed rgba(239, 68, 68, 0.8);
+        outline-offset: -2px;
+    }
+
+    .o_folder_name {
+        text-align: center;
+        font-size: 1.35rem;
+        font-weight: 600;
+        background: transparent;
+        border: 0;
+
+        &:focus {
+            box-shadow: none;
+            background: rgba(0, 0, 0, 0.03);
+        }
+    }
+}
+
+@keyframes o_folder_fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes o_folder_fade_out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes o_folder_zoom_in {
+    from {
+        transform: scale(0.1);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes o_folder_zoom_out {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.1);
+        opacity: 0;
+    }
+}
+
+// Single-layer variant, for elements whose whole background is the gradient.
+@keyframes o_gradient_flow {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+// Slowly slide the oversized gradient along the border for a "flowing" effect.
+@keyframes o_folder_border_flow {
+    0% {
+        background-position: 0 0, 0% 50%;
+    }
+    50% {
+        background-position: 0 0, 100% 50%;
+    }
+    100% {
+        background-position: 0 0, 0% 50%;
+    }
+}

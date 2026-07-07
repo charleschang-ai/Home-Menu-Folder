@@ -1,0 +1,66 @@
+# Translation of home_menu_folder to Simplified Chinese.
+msgid ""
+msgstr ""
+"Project-Id-Version: home_menu_folder 19.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Folder"
+msgstr "文件夹"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Organize by category"
+msgstr "按分类自动整理"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid ""
+"Group all apps into folders based on Odoo's official app categories? "
+"Existing folders will be rearranged."
+msgstr "按 Odoo 官方应用分类将所有应用分组到文件夹？现有文件夹将被重新编排。"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Organize"
+msgstr "整理"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Apps organized by category."
+msgstr "已按官方分类整理完成。"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Undo"
+msgstr "撤销"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Dissolve all folders"
+msgstr "一键解除所有文件夹"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Remove all folders and put every app back on the grid?"
+msgstr "解除所有文件夹，将全部应用放回主面板？"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "Dissolve"
+msgstr "解除"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.js:0
+msgid "All folders dissolved."
+msgstr "已解除所有文件夹。"
+
+#. module: home_menu_folder
+#: code:addons/home_menu_folder/static/src/home_menu.xml:0
+msgid "No result"
+msgstr "无结果"

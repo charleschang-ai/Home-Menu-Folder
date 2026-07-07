@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+<!-- Reusable app icon (image variant or coloured glyph variant). -->
+<t t-name="home_menu_folder.AppIcon">
+    <img t-if="app.webIconData" class="o_app_icon rounded-3" t-attf-src="{{app.webIconData}}"/>
+    <div t-else="" class="o_app_icon position-relative d-flex justify-content-center align-items-center p-2 rounded-3 ratio ratio-1x1"
+        t-attf-style="background-color: {{app.webIcon.backgroundColor}};">
+        <i t-attf-class="{{app.webIcon.iconClass}} position-relative w-auto h-auto" t-attf-style="color: {{app.webIcon.color}};"/>
+    </div>
+</t>
+
+<t t-name="home_menu_folder.HomeMenu">
+    <div t-ref="root" class="o_home_menu h-100 overflow-auto" t-att-class="{ o_ios_app: state.isIosApp }">
+        <div t-if="env.debug" class="o_hm_actions d-none d-md-flex">
+            <button class="o_auto_organize btn rounded-pill" t-on-click="onAutoOrganizeClick">
+                <i class="fa fa-magic me-1"/>Organize by category
+            </button>
+            <button class="o_unpack_all btn rounded-pill" t-on-click="onUnpackAllClick">
+                <i class="fa fa-folder-open-o me-1"/>Dissolve all folders
+            </button>
+        </div>
+        <div class="container">
+            <input t-ref="input" type="text" class="o_search_hidden visually-hidden w-auto" data-allow-hotkeys="true" t-on-input="_onInputSearch" t-on-blur="_onInputBlur" t-on-compositionstart="_onCompositionStart"
+                role="combobox"
+                t-att-aria-activedescendant="'result_app_' + state.focusedIndex"
+                t-att-aria-expanded="displayedItems.length ? 'true' : 'false'"
+                aria-autocomplete="list"
+                aria-haspopup="listbox"
+                autocomplete="off"
+            />
+            <ExpirationPanel t-if="subscription.warningType and !subscription.isWarningHidden and subscription.daysLeft &lt;= 30 and subscription.daysLeft > 0 and !subscription.sysadmin.replace"/>
+            <SysAdminPanel t-if="subscription.daysLeft > 0 and subscription.sysadmin.message"/>
+
+            <div t-if="displayedItems.length" role="listbox" class="o_apps row user-select-none mt-5 mx-0">
+                <div t-foreach="displayedItems" t-as="item" t-key="itemKey(item)"
+                    class="col-3 col-md-2 o_draggable mb-3 px-0"
+                    t-att-data-item-id="itemId(item)"
+                    t-att-data-item-type="item.type">
+
+                    <!-- App tile -->
+                    <a t-if="item.type === 'app'"
+                        role="option"
+                        class="o_app o_menuitem d-flex flex-column rounded-3 justify-content-start align-items-center w-100 p-1 p-md-2"
+                        t-att-data-menu-xmlid="item.app.xmlid"
+                        t-att-href="item.app.href"
+                        t-on-click.prevent="(ev) => this.onItemClick(item, ev)">
+                        <t t-call="home_menu_folder.AppIcon">
+                            <t t-set="app" t-value="item.app"/>
+                        </t>
+                        <div class="o_caption w-100 text-center text-truncate mt-2" t-esc="item.app.label or item.app.name"/>
+                    </a>
+
+                    <!-- Folder tile -->
+                    <div t-else=""
+                        class="o_app o_menuitem o_folder d-flex flex-column rounded-3 justify-content-start align-items-center w-100 p-1 p-md-2"
+                        t-on-click="(ev) => this.onItemClick(item, ev)">
+                        <div class="o_folder_preview_wrap position-relative">
+                            <div class="o_folder_preview d-grid rounded-3 p-1">
+                                <t t-foreach="folderPreviewApps(item)" t-as="fapp" t-key="fapp.id">
+                                    <div class="o_folder_preview_icon d-flex justify-content-center align-items-center">
+                                        <t t-call="home_menu_folder.AppIcon">
+                                            <t t-set="app" t-value="fapp"/>
+                                        </t>
+                                    </div>
+                                </t>
+                                <div t-if="item.apps.length > 4"
+                                    class="o_folder_preview_icon o_folder_more d-flex justify-content-center align-items-center rounded-2">
+                                    +<t t-esc="item.apps.length - 3"/>
+                                </div>
+                            </div>
+                            <span class="o_folder_badge" t-esc="item.apps.length"/>
+                        </div>
+                        <div class="o_caption w-100 text-center text-truncate mt-2" t-esc="item.name or defaultFolderName"/>
+                    </div>
+                </div>
+            </div>
+            <div t-elif="!displayedItems.length" id="result_menu_0" role="option" aria-selected="true" class="o_no_result">
+                No result
+            </div>
+        </div>
+
+        <!-- Enlarged folder panel -->
+        <div t-if="state.openFolder" class="o_folder_overlay"
+            t-att-class="{ o_closing: state.folderClosing }"
+            t-on-click.self="() => this.closeFolder()">
+            <div class="o_folder_panel rounded-4 p-4" t-ref="folderPanel">
+                <input class="o_folder_name form-control mb-4"
+                    t-att-value="state.openFolder.name"
+                    t-att-placeholder="defaultFolderName"
+                    t-on-change="onRenameFolder"/>
+                <div class="o_apps row user-select-none mx-0" t-ref="folderGrid">
+                    <div t-foreach="state.openFolder.apps" t-as="fapp" t-key="fapp.id"
+                        class="col-3 o_folder_draggable mb-3 px-0"
+                        t-att-data-menu-xmlid="fapp.xmlid">
+                        <a class="o_app o_menuitem d-flex flex-column rounded-3 justify-content-start align-items-center w-100 p-2"
+                            t-att-href="fapp.href"
+                            t-on-click.prevent="() => this.onFolderAppClick(fapp)">
+                            <t t-call="home_menu_folder.AppIcon">
+                                <t t-set="app" t-value="fapp"/>
+                            </t>
+                            <div class="o_caption w-100 text-center text-truncate mt-2" t-esc="fapp.label or fapp.name"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</t>
+
+</templates>
