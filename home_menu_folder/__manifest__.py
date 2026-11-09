@@ -41,7 +41,7 @@ Simplified Chinese translation included.
 """,
     "version": "19.0.1.0.0",
     "category": "Productivity",
-    "author": "Da Lei",
+    "author": "Don Shan",
     "license": "LGPL-3",
     "depends": ["web_enterprise"],
     "assets": {
